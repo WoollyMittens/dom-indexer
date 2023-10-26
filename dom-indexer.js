@@ -91,5 +91,5 @@ class DomIndex {
 }
 
 new DomIndex({
-	root: '#checkout'
+	root: 'body'
 });
