@@ -19,7 +19,7 @@ class DomIndex {
 		catch (e) { return false }
 	}
 
-	parse(element, parent) {
+	parse(element, parent, deepest) {
 		let nextParent = null;
 		// if it has an id
 		if (element.hasAttribute('id') && !/^[A-Z0-9]*$/.test(element.getAttribute('id'))) {
@@ -27,21 +27,21 @@ class DomIndex {
 			// if the id is unique
 			if (this.rootElement.querySelectorAll(elementId).length === 1) {
 				// store it in the root
-				this.rootMap[elementId] = {};
+				if (!this.rootMap[elementId]) this.rootMap[elementId] = {};
 				// assume the parent role
 				if (!nextParent) nextParent = this.rootMap[elementId];
 			}
 			// else
 			else {
 				// store it in the parent
-				parent[elementId] = {};
+				if (!parent[elementId]) parent[elementId] = {};
 			}
 		}
 		
 		// if it has a class name
+		let firstClass = null;
 		if (element.hasAttribute('class')) {
 			// for every seperate class
-			let firstClass = null;
 			let elementClasses = element.getAttribute('class').replace(/\t|\n/g, ' ').trim().split(' ');
 			for (let elementClass of elementClasses) {
 				// validate the class name
@@ -52,7 +52,7 @@ class DomIndex {
 						// if the class name is unique
 						if (this.rootElement.querySelectorAll(className).length === 1) {
 							// store it in the root
-							this.rootMap[className] = {};
+							if (!this.rootMap[className]) this.rootMap[className] = {};
 							// assume the parent role
 							if (!nextParent) nextParent = this.rootMap[className];
 							// store the first class
@@ -61,7 +61,7 @@ class DomIndex {
 						// else
 						else {
 							// add it to the parent
-							parent[className] = {}
+							if (!parent[className]) parent[className] = {}
 							// store the first class
 							firstClass = parent[className];
 						}
@@ -69,7 +69,7 @@ class DomIndex {
 					// else
 					else {
 						// store if as a secondary class name
-						firstClass['&' + className] = {};
+						if (!firstClass['&' + className]) firstClass['&' + className] = {};
 					}
 				}
 			}
@@ -78,13 +78,15 @@ class DomIndex {
 		// if the element has neither
 		if (!element.hasAttribute('id') && !element.hasAttribute('class')) {
 			// store it in the parent
-			parent[element.nodeName.toLowerCase()] = {};
+			let container = deepest || nextParent || parent;
+			let tagName = element.nodeName.toLowerCase();
+			if (!container[tagName]) container[tagName] = {};
 		}
 
 		// parse the child nodes
 		for (let childNode of element.childNodes) {
 			if (!/#text|#comment|script/i.test(childNode.nodeName)) {
-				this.parse(childNode, nextParent || parent);
+				this.parse(childNode, nextParent || parent, firstClass);
 			}
 		}
 	}
