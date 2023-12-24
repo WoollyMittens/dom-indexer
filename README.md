@@ -2,6 +2,15 @@
 
 A dev-tools snippet to find all unique id's and classnames in a container.
 
-Change the "root" parameter at the bottom to a CSS selector on the page.
+```javascript
+new DomIndex({
+	root: '.common-container',
+	attributes: /data-active|data-unavailable/
+});
+```
 
-Then paste this code into dev-tool and it will output LESS for all unique id's and classnames inside that container.
+**root: {CSS Selector}** - The CSS selector of a container on the page.
+
+**attributes: {Regexp}** - Which attributes to also use as selectors.
+
+Paste the contents of "dom-indexer.js" into the browser's dev-tools and it will output [LESS](https://lesscss.org/) for all the elements inside a container.

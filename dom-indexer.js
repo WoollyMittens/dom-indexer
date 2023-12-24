@@ -4,6 +4,8 @@ class DomIndex {
 		this.rootIdentifier = props.root;
 		this.rootElement = document.querySelector(props.root);
 		this.rootMap = {};
+		// store the allowed attributes
+		this.allowedAttributes = props.attributes;
 		// parse every node in the root
 		for (let childNode of this.rootElement.childNodes) {
 			if (!/#text|#comment|script/i.test(childNode.nodeName)) {
@@ -11,12 +13,24 @@ class DomIndex {
 			}
 		}
 		// publish the map
-		console.log(this.rootIdentifier, JSON.stringify(this.rootMap, null, '\t').replace(/"|,|:/g, ""));
+		console.log(this.rootIdentifier, JSON.stringify(this.rootMap, null, '\t').replace(/"|,|:/g, "").replace(/\\/g, "\""));
 	}
 
 	isValid(className) {
 		try { this.rootElement.querySelectorAll(className); return true; }
 		catch (e) { return false }
+	}
+
+	addAttributes(element, classes) {
+		let attributes = [...element.attributes];
+		// for every allowed attribute
+		for (let attribute of attributes) {
+			if (this.allowedAttributes.test(attribute.name)) {
+				// add it like a class name
+				classes.push(attribute.value ? `[${attribute.name}="${attribute.value}"]` : `[${attribute.name}]`);
+			}
+		}
+		return classes;
 	}
 
 	parse(element, parent, deepest) {
@@ -38,15 +52,17 @@ class DomIndex {
 			}
 		}
 		
-		// if it has a class name
+		// if it has a attributes
 		let firstClass = null;
-		if (element.hasAttribute('class')) {
-			// for every seperate class
-			let elementClasses = element.getAttribute('class').replace(/\t|\n/g, ' ').trim().split(' ');
+		let elementClasses = (element.hasAttribute('class')) ? element.getAttribute('class').replace(/\t|\n/g, ' ').trim().split(' ') : [];
+		elementClasses = elementClasses.map(className => "." + className);
+		elementClasses = this.addAttributes(element, elementClasses);
+		if (elementClasses.length > 0) {
+			// for every seperate attribute
 			for (let elementClass of elementClasses) {
 				// validate the class name
-				if (elementClass && !/ /.test(elementClass) && this.isValid('.' + elementClass)) {
-					let className = '.' + elementClass;
+				if (elementClass && !/ /.test(elementClass) && this.isValid(elementClass)) {
+					let className = elementClass;
 					// if this is the primary class name
 					if(elementClasses.indexOf(elementClass) <= 0) {
 						// if the class name is unique
@@ -69,15 +85,15 @@ class DomIndex {
 					// else
 					else {
 						// store if as a secondary class name
-						if (!firstClass['&' + className]) firstClass['&' + className] = {};
+						if (firstClass && !firstClass['&' + className]) firstClass['&' + className] = {};
 					}
 				}
 			}
 		}
-		
-		// if the element has neither
-		if (!element.hasAttribute('id') && !element.hasAttribute('class')) {
-			// store it in the parent
+
+		// or if it has none
+		else {
+			// store the tag name in the parent
 			let container = deepest || nextParent || parent;
 			let tagName = element.nodeName.toLowerCase();
 			if (!container[tagName]) container[tagName] = {};
@@ -93,5 +109,6 @@ class DomIndex {
 }
 
 new DomIndex({
-	root: 'body'
+	root: '.common-container',
+	attributes: /data-active|data-unavailable/
 });
