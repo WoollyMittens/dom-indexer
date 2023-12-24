@@ -21,16 +21,33 @@ class DomIndex {
 		catch (e) { return false }
 	}
 
-	addAttributes(element, classes) {
-		let attributes = [...element.attributes];
-		// for every allowed attribute
-		for (let attribute of attributes) {
-			if (this.allowedAttributes.test(attribute.name)) {
-				// add it like a class name
-				classes.push(attribute.value ? `[${attribute.name}="${attribute.value}"]` : `[${attribute.name}]`);
+	getClassNames(element) {
+		let elementSelectors = [];
+		// get the classNames from the element
+		let elementClasses = (element.hasAttribute('class')) ? element.getAttribute('class').replace(/\t|\n/g, ' ').trim().split(' ') : [];
+		// for each class
+		for (let elementClass of elementClasses) {
+			// format as a selector
+			elementSelectors.push("." + elementClass);
+		}
+		// return the formatted list of css selectors
+		return elementSelectors;
+	}
+
+	getAttributes(element) {
+		const elementSelectors = [];
+		// get the attributes from the element
+		let elementAttributes = [...element.attributes];
+		// for each attribute
+		for (let elementAttribute of elementAttributes) {
+			// if the attribute is on the allowed list
+			if (this.allowedAttributes.test(elementAttribute.name)) {
+				// format as a selector
+				elementSelectors.push(elementAttribute.value ? `[${elementAttribute.name}="${elementAttribute.value}"]` : `[${elementAttribute.name}]`);
 			}
 		}
-		return classes;
+		// return the formatted list of css selectors
+		return elementSelectors;
 	}
 
 	parse(element, parent, deepest) {
@@ -52,11 +69,9 @@ class DomIndex {
 			}
 		}
 		
-		// if it has a attributes
 		let firstClass = null;
-		let elementClasses = (element.hasAttribute('class')) ? element.getAttribute('class').replace(/\t|\n/g, ' ').trim().split(' ') : [];
-		elementClasses = elementClasses.map(className => "." + className);
-		elementClasses = this.addAttributes(element, elementClasses);
+		let elementClasses = [...this.getClassNames(element), ...this.getAttributes(element)];
+		// if it has attributes
 		if (elementClasses.length > 0) {
 			// for every seperate attribute
 			for (let elementClass of elementClasses) {
