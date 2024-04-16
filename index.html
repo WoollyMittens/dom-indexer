@@ -4,137 +4,152 @@
 <head>
 	<title>DOM Indexer Example</title>
 	<meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1, width=device-width" />
+	<script src="dom-indexer.js" type="module"></script>
 	<style>
-		.common-container {
+		body {
 			font-family: sans-serif;
-			border: solid 1px black;
-			padding:  2rem;
-
-			.title {
-				margin: 0 0 1rem;
-			}
-
-			.intro {
-				margin: 0 0 2rem;
-			}
-			.faq {
-				border-bottom: solid 1px black;
-				margin: 0 0 2rem;
-
-				.question {
-					display: flex;
-					gap: 0.5rem;
-					font-weight: bold;
-					padding: 0.5rem 0;
-					border-top: solid 1px black;
-					cursor: pointer;
-
-					&:before {
-						content: "+";
-						display: inline-block;
-						text-align: center;
-						min-width: 1rem;
-					}
-
-					&[data-active] {
-						&:before {
-							content: "-";
-						}
-					}
-				}
-				.answer {
-					display: none;
-					gap: 1rem;
-					margin: 0 0 0.5rem;
-
-					p {}
-				}
-				[data-active] + .answer {
-					display: flex;
-				}
-				.picture {}
-				a {}
-			}
-			p {}
-			.comments {
-				display: grid;
-				gap: 1rem 2rem;
-				grid-template-columns: 1fr 1fr;
-				grid-template-rows: auto;
-				border: none;
-				padding: 0;
-
-				label {
-					&:nth-child(3) {
-						grid-column: span 2;
-					}
-				}
-
-				input, textarea {
-					display: block;
-					width: 100%;
-					min-height: 2rem;
-					margin: 0.5rem 0;
-				}
-				textarea {
-					min-height: 6rem;
-				}
-			}
+			padding: 2rem;
+			margin: 0;
+		}
+		* {
+			box-sizing: border-box;
+		}
+		#example-container {
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			grid-template-rows: auto 1fr auto;
+			grid-template-areas: "title title title" "input action output" "attribs attribs attribs";
+			gap: 2rem;
+			height: calc(100vh - 4rem);
+		}
+		header {
+			grid-area: title;
+		}
+		#html-input {
+			grid-area: input;
+			font-family: monospace;
+			padding: 0.5rem 1rem;
+		}
+		#css-output {
+			grid-area: output;
+			font-family: monospace;
+			padding: 0.5rem 1rem;
+		}
+		aside {
+			grid-area: attribs;
+		}
+		#allowed-attributes {
+			font-family: monospace;
+			padding: 0.5rem 1rem;
+			width: 100%;
+		}
+		footer {
+			grid-area: action;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		#convert-action {
+			padding: 0.5rem 2rem;
+			font-size: 1.5rem;
 		}
 	</style>
 </head>
 
 <body>
 
-	<section class="common-container">
-		<h1 class="title">Example Document</h1>
-		<p class="intro">Check the console for output.</p>
-		<h2>Lorem ipsum dolor sit amet!</h2>
-		<dl class="faq">
-			<dt class="question" data-active>Lorem ipsum dolor sit amet.</dt>
-			<dd class="answer">
-				<img alt="" class="picture" src="160x120.svg" width="160" height="120"/>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-			</dd>
-			<dt class="question">Ut enim ad minim veniam.</dt>
-			<dd class="answer">
-				<img alt="" class="picture" src="160x120.svg" width="160" height="120"/>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed <a href="#">do eiusmod tempor</a> incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-			</dd>
-			<dt class="question">Duis aute irure dolor in reprehenderit.</dt>
-			<dd class="answer">
-				<img alt="" class="picture" src="160x120.svg" width="160" height="120"/>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-			</dd>
-		</dl>
-		<h2>Lorem ipsum dolor sit amet?</h2>
-		<fieldset class="comments">
-			<label>
-				Lorem ipsum
-				<input type="text" name="lorem" placeholder="Last, First"/>
-			</label>
-			<label>
-				Dolor sit
-				<input type="tel" name="lorem" placeholder="+614XXXXXXXX"/>
-			</label>
-			<label>
-				Amet
-				<textarea></textarea>
-			</label>
+	<section id="example-container">
+		<header>
+			<h1>DOM Indexer</h1>
+			<p>Convert pasted HTML into CSS boilerplate.</p>
+		</header>
 
-		</fieldset>
+		<textarea id="html-input" placeholder="HTML goes in here.">
+&lt;section class="common-container"&gt;
+	&lt;h1 class="title"&gt;Example Document&lt;/h1&gt;
+	&lt;p class="intro"&gt;Check the console for output.&lt;/p&gt;
+	&lt;h2&gt;Lorem ipsum dolor sit amet!&lt;/h2&gt;
+	&lt;dl class="faq"&gt;
+		&lt;dt class="question" data-active&gt;Lorem ipsum dolor sit amet.&lt;/dt&gt;
+		&lt;dd class="answer"&gt;
+			&lt;img alt="" class="picture" src="160x120.svg" width="160" height="120"/&gt;
+			&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p&gt;
+		&lt;/dd&gt;
+		&lt;dt class="question"&gt;Ut enim ad minim veniam.&lt;/dt&gt;
+		&lt;dd class="answer"&gt;
+			&lt;img alt="" class="picture" src="160x120.svg" width="160" height="120"/&gt;
+			&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed &lt;a href="#"&gt;do eiusmod tempor&lt;/a&gt; incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p&gt;
+		&lt;/dd&gt;
+		&lt;dt class="question"&gt;Duis aute irure dolor in reprehenderit.&lt;/dt&gt;
+		&lt;dd class="answer"&gt;
+			&lt;img alt="" class="picture" src="160x120.svg" width="160" height="120"/&gt;
+			&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p&gt;
+		&lt;/dd&gt;
+	&lt;/dl&gt;
+	&lt;h2&gt;Lorem ipsum dolor sit amet?&lt;/h2&gt;
+	&lt;fieldset class="comments"&gt;
+		&lt;label&gt;
+			Lorem ipsum
+			&lt;input type="text" name="lorem" placeholder="Last, First"/&gt;
+		&lt;/label&gt;
+		&lt;label&gt;
+			Dolor sit
+			&lt;input type="tel" name="lorem" placeholder="+614XXXXXXXX"/&gt;
+		&lt;/label&gt;
+		&lt;label&gt;
+			Amet
+			&lt;textarea&gt;&lt;/textarea&gt;
+		&lt;/label&gt;
+	&lt;/fieldset&gt;
+&lt;/section&gt;
+		</textarea>
+
+		<aside>
+			<input id="allowed-attributes" type="text" value="/type|data-/" placeholder="A regexp of allowed attributes: /type|data-/"/>
+		</aside>
+
+		<textarea id="css-output" placeholder="CSS comes out here."></textarea>
+
+		<footer>
+			<button id="convert-action">&gt;</button>
+		</footer>
+
 	</section>
+
 	<script>
-		const toggles = document.querySelectorAll('.faq dt');
-		for (let toggle of toggles) {
-			toggle.addEventListener('click', evt=>{
-				if (toggle.hasAttribute('data-active')) { toggle.removeAttribute('data-active') }
-				else { toggle.setAttribute('data-active', '') }
+		addEventListener("DOMContentLoaded", () => {
+
+			const htmlInput = document.querySelector('#html-input');
+			const cssOutput = document.querySelector('#css-output');
+			const allowedAttributes = document.querySelector('#allowed-attributes');
+			const convertButton = document.querySelector('#convert-action');
+
+			function convert() {
+				// load the html input into a template
+				const inputTemplate = document.createElement('template');
+				inputTemplate.innerHTML = htmlInput.value;
+
+				// convert the allowable attributes
+				var matches = allowedAttributes.value.match(new RegExp('^/(.*?)/([gimy]*)$'));
+				var regex = new RegExp(matches[1], matches[2]);
+
+				// let the indexer loose on it
+				cssOutput.value = new DomIndex({
+					rootElement: inputTemplate.content.firstElementChild,
+					allowedAttributes: regex
+				}).convert();
+			}
+
+			convertButton.addEventListener('click', (evt) => {
+				evt.preventDefault();
+				convert();
 			});
-		}
+
+			convert();
+
+		});
 	</script>
 
-	<script src="dom-indexer.js"></script>
 </body>
 
 </html>

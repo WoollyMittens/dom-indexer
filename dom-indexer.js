@@ -1,11 +1,13 @@
-class DomIndex {
+export class DomIndex {
 	constructor(props) {
 		// establish the root
-		this.rootIdentifier = props.root;
-		this.rootElement = document.querySelector(props.root);
+		this.rootElement = props.rootElement;
 		this.rootMap = {};
 		// store the allowed attributes
-		this.allowedAttributes = props.attributes;
+		this.allowedAttributes = props.allowedAttributes;
+	}
+
+	convert() {
 		// parse every node in the root
 		for (let childNode of this.rootElement.childNodes) {
 			if (!/#text|#comment|script/i.test(childNode.nodeName)) {
@@ -13,7 +15,8 @@ class DomIndex {
 			}
 		}
 		// publish the map
-		console.log(this.rootIdentifier, JSON.stringify(this.rootMap, null, '\t').replace(/"|,|:/g, "").replace(/\\/g, "\""));
+		const rootIdentifier = this.rootElement.id ? '#' + this.rootElement.id : '.' + this.rootElement.className.split(' ')[0];
+		return rootIdentifier + ' ' + JSON.stringify(this.rootMap, null, '\t').replace(/"|,|:/g, "").replace(/\\/g, "\"");
 	}
 
 	isValid(className) {
@@ -53,10 +56,13 @@ class DomIndex {
 	parse(element, parent, deepest) {
 		let nextParent = null;
 		// if it has an id
-		if (element.hasAttribute('id') && !/^[A-Z0-9]*$/.test(element.getAttribute('id'))) {
+		if (element.hasAttribute('id')) {
 			const elementId = '#' + element.getAttribute('id');
 			// if the id is unique
-			if (this.rootElement.querySelectorAll(elementId).length === 1) {
+            let hasValidId;
+            try { hasValidId = (this.rootElement.querySelectorAll(elementId).length === 1) } 
+			catch (e) { hasValidId = false }
+			if (hasValidId) {
 				// store it in the root
 				if (!this.rootMap[elementId]) this.rootMap[elementId] = {};
 				// assume the parent role
@@ -123,7 +129,4 @@ class DomIndex {
 	}
 }
 
-new DomIndex({
-	root: '.common-container',
-	attributes: /data-active|data-unavailable/
-});
+window.DomIndex = DomIndex;

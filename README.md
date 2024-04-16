@@ -1,16 +1,24 @@
 # DOM Indexer
 
-A dev-tools snippet to find all unique id's and classnames in a container.
+Convert HTML components into CSS boilerplate.
+
+## Example
+
+https://woollymittens.github.io/dom-indexer/
+
+## Instructions
 
 ```javascript
-new DomIndex({
-	root: '.common-container',
-	attributes: /data-active|data-unavailable/
-});
+var outputCss = new DomIndex({
+    rootElement: document.querySelector(YOUR_ROOT_SELECTOR),
+    allowedAttributes: /type|data-/
+}).convert();
 ```
 
-**root: {CSS Selector}** - The CSS selector of a container on the page.
+**rootElement: {DOM element}** - The CSS selector of a container on the page.
 
-**attributes: {Regexp}** - Which attributes to also use as selectors.
+**allowedAttributes: {Regexp}** - Which attributes to also use as selectors.
 
-Paste the contents of "dom-indexer.js" into the browser's dev-tools and it will output [LESS](https://lesscss.org/) for all the elements inside a container.
+## License
+
+&copy; Maurice van Creij. Licensed under [The MIT License](https://opensource.org/licenses/MIT).
