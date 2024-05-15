@@ -1,6 +1,6 @@
 # DOM Indexer
 
-Convert HTML components into CSS boilerplate.
+A tool to generate boilerplate stylesheets for HTML components.
 
 ## Example
 
