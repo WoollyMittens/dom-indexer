@@ -4,6 +4,7 @@ export class DomIndex {
 		this.rootElement = props.rootElement;
 		this.rootMap = {};
 		// store the allowed attributes
+		this.ignoreIds = props.ignoreIds;
 		this.allowedAttributes = props.allowedAttributes;
 	}
 
@@ -56,7 +57,7 @@ export class DomIndex {
 	parse(element, parent, deepest) {
 		let nextParent = null;
 		// if it has an id
-		if (element.hasAttribute('id')) {
+		if (!this.ignoreIds && element.hasAttribute('id')) {
 			const elementId = '#' + element.getAttribute('id');
 			// if the id is unique
             let hasValidId;

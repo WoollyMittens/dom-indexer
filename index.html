@@ -37,6 +37,17 @@
 		}
 		aside {
 			grid-area: attribs;
+			display: flex;
+			gap: 1rem;
+		}
+		label {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			gap: 5px;
+		}
+		label:has(#allowed-attributes) {
+			flex: 1 1 auto;
 		}
 		#allowed-attributes {
 			font-family: monospace;
@@ -105,7 +116,8 @@
 		</textarea>
 
 		<aside>
-			<input id="allowed-attributes" type="text" value="/type|data-/" placeholder="A regexp of allowed attributes: /type|data-/"/>
+			<label><input id="allowed-attributes" type="text" value="/type|data-/" placeholder="A regexp of allowed attributes: /type|data-/"/></label>
+			<label><input id="ignore-ids" type="checkbox"/> Ignore IDs</label>
 		</aside>
 
 		<textarea id="css-output" placeholder="CSS comes out here."></textarea>
@@ -122,6 +134,7 @@
 			const htmlInput = document.querySelector('#html-input');
 			const cssOutput = document.querySelector('#css-output');
 			const allowedAttributes = document.querySelector('#allowed-attributes');
+			const ignoreIds = document.querySelector('#ignore-ids');
 			const convertButton = document.querySelector('#convert-action');
 
 			function convert() {
@@ -135,8 +148,9 @@
 
 				// let the indexer loose on it
 				cssOutput.value = new DomIndex({
-					rootElement: inputTemplate.content.firstElementChild,
-					allowedAttributes: regex
+					'rootElement': inputTemplate.content.firstElementChild,
+					'ignoreIds': ignoreIds.checked,
+					'allowedAttributes': regex
 				}).convert();
 			}
 
